@@ -20,22 +20,24 @@ class ProxyFactory{
                 /*
                     Caso a propriedade exista dentro da lista de propriedades passada por parametro e seja uma funçao
                 */
-                if(props.includes(prop) && ProxyFactory._isFunction(prop)){
+                if(props.includes(prop) && ProxyFactory._isFunction(target[prop])){
                     return function(){
                         console.log(`${prop}`);
-                        Reflect.apply(target[prop], target, arguments);
-                        return action(target);
+                        let result = Reflect.apply(target[prop], target, arguments);
+                        action(target);
+                        return result;
                     }
                 }
                 return Reflect.get(target, prop, receiver);
             },
 
             set(target, prop, value, receiver) {
+                let result = Reflect.set(target, prop, value, receiver);
                 if(props.includes(prop)){
                     target[prop] = value;
                     action(target);
                 }
-                return Reflect.set(target, prop, value, receiver);
+                return result;
             }
         });
     }

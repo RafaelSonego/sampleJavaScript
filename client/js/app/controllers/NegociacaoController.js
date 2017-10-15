@@ -6,14 +6,12 @@ class NegociacaoController {
         this._inputQuantidade = $('#quantidade');
         this._inputValor = $('#valor');
 
-        this._negociacoesView = new NegociacoesView($('#divTableNegociacoesView'));
         this._listaNegociacoes = new Bind(new ListaNegociacoes(),
-                                        this._negociacoesView,
+                                         new NegociacoesView($('#divTableNegociacoesView')),
                                         'adiciona','esvazia');
 
-        this._mensagemView = new MensagemView($('#divMensagemAlerta'));
         this._mensagem = new Bind(new Mensagem(),
-                                  this._mensagemView,
+                                  new MensagemView($('#divMensagemAlerta')),
                                   'texto');
     }
 
@@ -26,10 +24,24 @@ class NegociacaoController {
         this._limpaFormulario();
     }
 
+    importaNegociacoes(){
+       let negociacaoService = new NegociacaoService();
+       negociacaoService.obterNegociacaoDaSemana((err, listaNegociacoes) => {
+           //Error first
+            if(err){
+                this._mensagem.texto = err;
+                return;
+            }
+
+            listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
+            this._mensagem.texto = 'Negociacoes importadas com sucesso.';
+       });
+    }
+
     apagaListaNegociacoes(){
         this._listaNegociacoes.esvazia();
         
-        this._mensagem.texto = 'Negociações apagadas com sucesso!';
+        this._mensagem.texto = '*** Negociações apagadas com sucesso! ***';
     }
 
     _limpaFormulario(){
