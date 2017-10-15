@@ -25,17 +25,54 @@ class NegociacaoController {
     }
 
     importaNegociacoes(){
-       let negociacaoService = new NegociacaoService();
-       negociacaoService.obterNegociacaoDaSemana((err, listaNegociacoes) => {
-           //Error first
-            if(err){
-                this._mensagem.texto = err;
-                return;
-            }
 
-            listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
-            this._mensagem.texto = 'Negociacoes importadas com sucesso.';
-       });
+        let negociacaoService = new NegociacaoService();
+
+        //Promise.all recebe um array de Promises que será executada na ordem em que esta no array
+        Promise.all([
+                    negociacaoService.obterNegociacaoDaSemana(), 
+                    negociacaoService.obterNegociacaoDaAnterior(),
+                    negociacaoService.obterNegociacaoDaRetrasada()
+                ]).then((arrayListaNegociacoes) => { 
+                    //arrayListaNegociacoes: Como cada promise retorna um array, o retorno do Promise.all será um array de array de negociacoes
+                    //Utiliza o reduce para criar um unico array de negociacoes
+                    arrayListaNegociacoes
+                        //reduce recebe dois parametros, uma funcao e o valor de inicializacao do novo array neste caso
+                        .reduce((newArray, array) => newArray.concat(array), [])
+                        .forEach(negociacao => {
+                            return this._listaNegociacoes.adiciona(negociacao);
+                        });
+                        this._mensagem.texto = 'Negociações importadas com sucesso!';
+                })
+                .catch((error) =>{
+                    this._mensagem.texto = error;
+                });
+
+        /*
+            //then irá chamar a funcao resolve do promise
+            negociacaoService.obterNegociacaoDaSemana().then(listaNegociacoes => {
+                listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
+                this._mensagem.texto = 'Negociações da semana importadas com sucesso!';
+            })
+            //catch irá chamar a funcao reject do promise
+            .catch(error => this._mensagem.texto = error);
+
+            //then irá chamar a funcao resolve do promise
+            negociacaoService.obterNegociacaoDaAnterior().then(listaNegociacoes => {
+                listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
+                this._mensagem.texto = 'Negociações da semana anterior importadas com sucesso!';
+            })
+            //catch irá chamar a funcao reject do promise
+            .catch(error => this._mensagem.texto = error);
+
+            //then irá chamar a funcao resolve do promise
+            negociacaoService.obterNegociacaoDaRetrasada().then(listaNegociacoes => {
+                listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
+                this._mensagem.texto = 'Negociações da semana retrasada importadas com sucesso!';
+            })
+            //catch irá chamar a funcao reject do promise
+            .catch(error => this._mensagem.texto = error);
+        */
     }
 
     apagaListaNegociacoes(){
