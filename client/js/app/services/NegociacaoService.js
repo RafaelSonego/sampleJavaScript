@@ -4,57 +4,65 @@ class NegociacaoService{
     }
 
     obterNegociacaoDaSemana(){
-        return new Promise((resolve, reject) => {
-            //get irá retornar um Promise
-            this._httpService
-                .get('negociacoes/semana')
-                .then(listaNegociacoes => {
-                    console.log(listaNegociacoes);
-                    resolve(listaNegociacoes.map(obj => {
-                        return new Negociacao(new Date(obj.data), obj.quantidade, obj.valor);
-                    }));
-                })
-                .catch(error => {
-                    console.log(error);
-                    reject('Não foi possível obter as negociacoes da semana');
+        return this._httpService
+            .get('negociacoes/semana') //get irá retornar um Promise
+            .then(listaNegociacoes => {
+                return listaNegociacoes.map(obj => {
+                    return new Negociacao(new Date(obj.data), obj.quantidade, obj.valor);
                 });
-        });
+            })
+            .catch(error => {
+                console.log(error);
+                throw new Error('Não foi possível obter as negociacoes da semana');
+            });
     }
 
     obterNegociacaoDaAnterior(){
-        return new Promise((resolve, reject) => {
-            //get irá retornar um Promise
-            this._httpService
-                .get('negociacoes/anterior')
-                .then(listaNegociacoes => {
-                    console.log(listaNegociacoes);
-                    resolve(listaNegociacoes.map(obj => {
-                        return new Negociacao(new Date(obj.data), obj.quantidade, obj.valor);
-                    }));
-                })
-                .catch(error => {
-                    console.log(error);
-                    reject('Não foi possível obter as negociacoes da semana anterior');
+        return this._httpService
+            .get('negociacoes/anterior') //get irá retornar um Promise
+            .then(listaNegociacoes => {
+                return listaNegociacoes.map(obj => {
+                    return new Negociacao(new Date(obj.data), obj.quantidade, obj.valor);
                 });
-        });        
+            })
+            .catch(error => {
+                console.log(error);
+                throw new Error('Não foi possível obter as negociacoes da semana anterior');
+            });
     }
 
     obterNegociacaoDaRetrasada(){
-        return new Promise((resolve, reject) => {
-            //get irá retornar um Promise
-            this._httpService
-                .get('negociacoes/retrasada')
-                .then(listaNegociacoes => {
-                    console.log(listaNegociacoes);
-                    resolve(listaNegociacoes.map(obj => {
-                        return new Negociacao(new Date(obj.data), obj.quantidade, obj.valor);
-                    }));
+        return this._httpService
+            .get('negociacoes/retrasada') //get irá retornar um Promise
+            .then(listaNegociacoes => {
+                return listaNegociacoes.map(obj => {
+                    return new Negociacao(new Date(obj.data), obj.quantidade, obj.valor);
+                });
+            })
+            .catch(error => {
+                console.log(error);
+                throw new Error('Não foi possível obter as negociacoes da semana retrasada');
+            });
+    }
+
+    obterTodasAsNegociacoes(){
+        return Promise
+                .all([
+                        this.obterNegociacaoDaSemana(), 
+                        this.obterNegociacaoDaAnterior(),
+                        this.obterNegociacaoDaRetrasada()
+                    ])
+                .then((arrayTodasNegociacoesPorPeriodo) => {
+                    //arrayListaNegociacoes: Como cada promise retorna um array, o retorno do Promise.all será um array de array de negociacoes
+                    //Utiliza o reduce para criar um unico array de negociacoes
+                    let listaNegociacoes = arrayTodasNegociacoesPorPeriodo
+                        .reduce((newArray, array) => newArray.concat(array), []);
+                        //reduce recebe dois parametros, uma funcao e o valor de inicializacao do novo array neste caso                        
+                    return listaNegociacoes;
                 })
                 .catch(error => {
-                    console.log(error);
-                    reject('Não foi possível obter as negociacoes da semana retrasada');
+                    throw new Error(error);
                 });
-        });        
     }
 
 }

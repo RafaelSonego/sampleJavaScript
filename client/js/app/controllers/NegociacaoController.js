@@ -27,26 +27,16 @@ class NegociacaoController {
     importaNegociacoes(){
 
         let negociacaoService = new NegociacaoService();
-
-        //Promise.all recebe um array de Promises que será executada na ordem em que esta no array
-        Promise.all([
-                    negociacaoService.obterNegociacaoDaSemana(), 
-                    negociacaoService.obterNegociacaoDaAnterior(),
-                    negociacaoService.obterNegociacaoDaRetrasada()
-                ]).then((arrayListaNegociacoes) => { 
-                    //arrayListaNegociacoes: Como cada promise retorna um array, o retorno do Promise.all será um array de array de negociacoes
-                    //Utiliza o reduce para criar um unico array de negociacoes
-                    arrayListaNegociacoes
-                        //reduce recebe dois parametros, uma funcao e o valor de inicializacao do novo array neste caso
-                        .reduce((newArray, array) => newArray.concat(array), [])
-                        .forEach(negociacao => {
-                            return this._listaNegociacoes.adiciona(negociacao);
+        negociacaoService.obterTodasAsNegociacoes()
+                         .then(listaNegociacoes => {
+                             listaNegociacoes.forEach(negociacao => {
+                                return this._listaNegociacoes.adiciona(negociacao);
+                            });
+                            this._mensagem.texto = 'Negociações importadas com sucesso!';
+                         })
+                        .catch((error) =>{
+                            this._mensagem.texto = error;
                         });
-                        this._mensagem.texto = 'Negociações importadas com sucesso!';
-                })
-                .catch((error) =>{
-                    this._mensagem.texto = error;
-                });
 
         /*
             //then irá chamar a funcao resolve do promise
