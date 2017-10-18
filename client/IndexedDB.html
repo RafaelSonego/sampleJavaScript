@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Aprendendo IndexedDB</title>
+</head>
+<body>
+    <script src="js/app/models/Negociacao.js"></script>
+    <script>
+        //open recebe dois parametros, NOME DO BANCO e a Versao.
+        //Depois de criado, só irá criar novamente se alterar a versao
+        var openRequest = window.indexedDB.open('sonegoTeste', 2);
+        var connection;
+        
+        openRequest.onupgradeneeded = (e) => {
+            console.log('criando ou alterando um banco de dados');
+            let minhaConnection = e.target.result;
+
+            if(minhaConnection.objectStoreNames.contains('negociacoes')){
+                minhaConnection.deleteObjectStore('negociacoes');
+            }
+            minhaConnection.createObjectStore('negociacoes', {autoIncrement: true});
+        };
+
+        openRequest.onsuccess = (e) => {
+            console.log('conexao aberta com sucesso');
+            connection = e.target.result;
+        };
+
+        openRequest.onerror = (e) => {
+            console.log(e.target.error);
+        };
+
+        function adiciona(){
+            //Abre uma transacao de leitura e escrita para o objeto negociacoes
+            let transaction = connection.transaction(['negociacoes'], 'readwrite');
+            let store = transaction.objectStore('negociacoes');
+            let negociacao = new Negociacao(new Date(), 1, 300);
+            let request = store.add(negociacao);
+
+            request.onsuccess = e => {
+                console.log('Sucesso ao incluir');
+            };
+
+            request.onerror = e => {
+                console.log('Algum erro');
+            };
+        }
+
+        function listarTodos(){
+            let transaction = connection.transaction(['negociacoes'], 'readwrite');
+            let store = transaction.objectStore('negociacoes');
+            let cursor = store.openCursor();
+
+            let listaNegociacoes = [];
+
+            cursor.onsuccess = e =>{
+                //Aponta para o primeiro elemento que esta gravado
+                let atual = e.target.result;
+                if(atual){
+                    //Retorna as propridades que foram guardadas
+                    var dado = atual.value;   
+                    listaNegociacoes.push(new Negociacao(dado._data, dado._quantidade, dado._valor));
+                    //Aponta para o proximo elemento gravado
+                    //e chama novamente o evento onsuccess
+                    atual.continue();
+                }else {
+                    console.log(listaNegociacoes);
+                }
+
+            };
+
+            cursor.onerror = e =>{
+                console.log(e.target.error.name);
+            };
+
+        }
+
+    </script>
+</body>
+</html>

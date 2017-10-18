@@ -19,11 +19,13 @@ class NegociacaoController {
 
     adiciona(event) {
         event.preventDefault();
-        this._listaNegociacoes.adiciona(this._criaNegociacao());
-
-        this._mensagem.texto = 'Negociacao adicionada com sucesso!';
-        
-        this._limpaFormulario();
+        try{
+            this._listaNegociacoes.adiciona(this._criaNegociacao());
+            this._mensagem.texto = 'Negociacao adicionada com sucesso!';
+            this._limpaFormulario();
+        }catch(erro){
+            this._mensagem.texto = erro;
+        }
     }
 
     importaNegociacoes(){
@@ -35,10 +37,10 @@ class NegociacaoController {
                                 return this._listaNegociacoes.adiciona(negociacao);
                             });
                             this._mensagem.texto = 'Negociações importadas com sucesso!';
-                         })
-                        .catch((error) =>{
+                          })
+                          .catch((error) =>{
                             this._mensagem.texto = error;
-                        });
+                          });
 
         /*
             //then irá chamar a funcao resolve do promise
