@@ -1,4 +1,4 @@
-var connectionFactory = (function (){ //Funcao anonima
+var ConnectionFactory = (function (){ //Funcao anonima
     const stores = ['negociacoes'];
     const version = 4;
     const dbName = 'sonegoTeste';
