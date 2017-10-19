@@ -15,6 +15,34 @@ class NegociacaoController {
                                   'texto');
 
         this._ordemAtual = '';
+
+        // Na programacao funcional , sabemos que se tiver uma linha, nao precisamos colocar o return
+        ConnectionFactory
+                        .getConnection() // minha getConnection retorna uma connection que precisamos saber para utilizar o then
+                        .then(connection => new NegociacaoDao(connection)) // com a connection, instancio o NegociacaoDao passando a connection como parametro
+                        .then(dao => dao.listarTodos()) // resolve esta retornando uma lista de negociacoes que poderei pegar no then
+                        .then(listaNegociacoes => { //Recupero a lista de negociacoes
+                            listaNegociacoes.forEach(negociacao => {
+                                this._listaNegociacoes.adiciona(negociacao);
+                            });
+                        })
+                        .catch(error => {
+                            this._mensagem.texto = error;
+                        });
+
+        /* Maneira mais verbosa
+        ConnectionFactory
+                    .getConnection()
+                    .then(connection => {
+                        new NegociacaoDao(connection)
+                            .listarTodos()
+                            .then(listaNegociacoes => {
+                                listaNegociacoes.forEach(negociacao => {
+                                    this._listaNegociacoes.adiciona(negociacao);
+                                });
+                            });
+        });
+        */
     }
 
     adiciona(event) {
@@ -25,7 +53,7 @@ class NegociacaoController {
             .then(connection => {
                 let negociacao = this._criaNegociacao();
                 new NegociacaoDao(connection)
-                    .adiciona(negociacao)
+                    .adiciona(negociacao)//Persiste no banco indexeddb
                         .then(() => {
                             this._listaNegociacoes.adiciona(this._criaNegociacao());
                             this._mensagem.texto = 'Negociacao adicionada com sucesso!';
@@ -80,9 +108,17 @@ class NegociacaoController {
     }
 
     apagaListaNegociacoes(){
-        this._listaNegociacoes.esvazia();
-        
-        this._mensagem.texto = '*** Negociações apagadas com sucesso! ***';
+        ConnectionFactory
+            .getConnection()
+            .then(connection => new NegociacaoDao(connection))
+            .then(dao => dao.apagaTodos())
+            .then(mensagem => {
+                this._mensagem.texto = mensagem;
+                this._listaNegociacoes.esvazia();
+            })
+            .catch(error => {
+                this._mensagem.texto = error;
+            });
     }
 
     _limpaFormulario(){
