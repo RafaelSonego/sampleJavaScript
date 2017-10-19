@@ -1,9 +1,10 @@
-var connectonFactory = (function (){ //Funcao anonima
-    var stores = ['negociacoes'];
-    var version = 4;
-    var dbName = 'sonegoTeste';
+var connectionFactory = (function (){ //Funcao anonima
+    const stores = ['negociacoes'];
+    const version = 4;
+    const dbName = 'sonegoTeste';
+
     var connection = null;
-    
+    var close;
     return class ConnectionFactory {
     
         constructor(){
@@ -23,6 +24,10 @@ var connectonFactory = (function (){ //Funcao anonima
                 openRequest.onsuccess = e => {
                     if(!connection){
                         connection = e.target.result;
+                        close = connection.close.bind(connection);
+                        connection.close = function(){
+                            throw new Error('Nao é possível fechar a conexao diretamente!');
+                        }
                     }
                     resolve(connection);
                 }
@@ -44,6 +49,13 @@ var connectonFactory = (function (){ //Funcao anonima
                 }
                 connection.createObjectStore(store, {autoIncrement: true});
             });
+        }
+
+        static closeConnection(){
+            if(connection){
+                close();
+                connection = null;
+            }
         }
     }
 })();//será carregada e logo depois executada!
