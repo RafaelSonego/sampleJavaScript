@@ -15,110 +15,64 @@ class NegociacaoController {
                                   'texto');
 
         this._ordemAtual = '';
+        this._negociacaoService = new NegociacaoService();
 
-        // Na programacao funcional , sabemos que se tiver uma linha, nao precisamos colocar o return
-        ConnectionFactory
-                        .getConnection() // minha getConnection retorna uma connection que precisamos saber para utilizar o then
-                        .then(connection => new NegociacaoDao(connection)) // com a connection, instancio o NegociacaoDao passando a connection como parametro
-                        .then(dao => dao.listarTodos()) // resolve esta retornando uma lista de negociacoes que poderei pegar no then
-                        .then(listaNegociacoes => { //Recupero a lista de negociacoes
-                            listaNegociacoes.forEach(negociacao => {
-                                this._listaNegociacoes.adiciona(negociacao);
-                            });
-                        })
-                        .catch(error => {
-                            this._mensagem.texto = error;
-                        });
+        this._init();
+    }
 
-        /* Maneira mais verbosa
-        ConnectionFactory
-                    .getConnection()
-                    .then(connection => {
-                        new NegociacaoDao(connection)
-                            .listarTodos()
-                            .then(listaNegociacoes => {
-                                listaNegociacoes.forEach(negociacao => {
-                                    this._listaNegociacoes.adiciona(negociacao);
-                                });
-                            });
-        });
-        */
+    _init(){
+        this._negociacaoService
+            .listar()
+            .then(listaNegociacoes => //Recupero a lista de negociacoes
+                listaNegociacoes.forEach(negociacao => 
+                    this._listaNegociacoes.adiciona(negociacao)))
+            .catch(error => {
+                this._mensagem.texto = error;
+            });
+
+        // setInterval recebe uma funçao e o tempo que ficará sendo chamado 3000 milesegundos
+        setInterval(() => {
+        this.importaNegociacoes();
+        }, 3000);
     }
 
     adiciona(event) {
         event.preventDefault();
 
-        ConnectionFactory
-            .getConnection()
-            .then(connection => {
-                let negociacao = this._criaNegociacao();
-                new NegociacaoDao(connection)
-                    .adiciona(negociacao)//Persiste no banco indexeddb
-                        .then(() => {
-                            this._listaNegociacoes.adiciona(this._criaNegociacao());
-                            this._mensagem.texto = 'Negociacao adicionada com sucesso!';
-                            this._limpaFormulario();
-                        });
-                        
+        let negociacao = this._criaNegociacao();
+        this._negociacaoService
+            .cadastrar(negociacao)
+            .then(mensagem => {
+                this._listaNegociacoes.adiciona(negociacao);
+                this._mensagem.texto = mensagem;
+                this._limpaFormulario();
             })
-            .catch(erro => {
-                this._mensagem.texto = erro;
-            });
+            .catch(error => this._mensagem.texto = error);
     }
 
     importaNegociacoes(){
-
-        let negociacaoService = new NegociacaoService();
-        negociacaoService.obterTodasAsNegociacoes()
-                         .then(listaNegociacoes => {
-                             listaNegociacoes.forEach(negociacao => {
-                                return this._listaNegociacoes.adiciona(negociacao);
-                            });
+        this._negociacaoService
+                .importarNegociacoes(this._listaNegociacoes.negociacoes)
+                .then(listaNegociacoes => 
+                        listaNegociacoes.forEach(negociacao => {
+                            this._negociacaoService.cadastrar(negociacao);
+                            this._listaNegociacoes.adiciona(negociacao);
                             this._mensagem.texto = 'Negociações importadas com sucesso!';
-                          })
-                          .catch((error) =>{
-                            this._mensagem.texto = error;
-                          });
-
-        /*
-            //then irá chamar a funcao resolve do promise
-            negociacaoService.obterNegociacaoDaSemana().then(listaNegociacoes => {
-                listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
-                this._mensagem.texto = 'Negociações da semana importadas com sucesso!';
-            })
-            //catch irá chamar a funcao reject do promise
-            .catch(error => this._mensagem.texto = error);
-
-            //then irá chamar a funcao resolve do promise
-            negociacaoService.obterNegociacaoDaAnterior().then(listaNegociacoes => {
-                listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
-                this._mensagem.texto = 'Negociações da semana anterior importadas com sucesso!';
-            })
-            //catch irá chamar a funcao reject do promise
-            .catch(error => this._mensagem.texto = error);
-
-            //then irá chamar a funcao resolve do promise
-            negociacaoService.obterNegociacaoDaRetrasada().then(listaNegociacoes => {
-                listaNegociacoes.forEach(negociacao => this._listaNegociacoes.adiciona(negociacao));
-                this._mensagem.texto = 'Negociações da semana retrasada importadas com sucesso!';
-            })
-            //catch irá chamar a funcao reject do promise
-            .catch(error => this._mensagem.texto = error);
-        */
+                        })
+                    )
+                .catch((error) => this._mensagem.texto = error);
     }
 
     apagaListaNegociacoes(){
-        ConnectionFactory
-            .getConnection()
-            .then(connection => new NegociacaoDao(connection))
-            .then(dao => dao.apagaTodos())
-            .then(mensagem => {
-                this._mensagem.texto = mensagem;
-                this._listaNegociacoes.esvazia();
-            })
-            .catch(error => {
-                this._mensagem.texto = error;
-            });
+        this._negociacaoService
+                .apagarNegociacoes()
+                .then(mensagem => {
+                    this._mensagem.texto = mensagem;
+                    this._listaNegociacoes.esvazia();
+                })
+                .catch(error => {
+                    this._mensagem.texto = error;
+                });
     }
 
     _limpaFormulario(){
