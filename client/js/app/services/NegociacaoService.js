@@ -102,11 +102,14 @@ class NegociacaoService{
     }
 
     importarNegociacoes(listaAtual){
+        //É um for dentro de um for neste caso, 
+        //No filter, cada elemento (negociacao) será comparado com o Negociacao existente de uma lista já existente
         return this.obterTodasAsNegociacoes()
-                .then(listaNegociacoes => 
-                    listaNegociacoes.filter(negociacao => 
-                        !listaAtual.some(negociacaoExistente =>
-                            JSON.stringify(negociacao) == JSON.stringify(negociacaoExistente)))
+                .then(listaNegociacoes => //Recupera as novas negociacoes que serão importadas
+                    listaNegociacoes.filter(negociacao => //Para cada uma, através do metodo some, será comparado com uma lista já existente verificando se está duplicada
+                        !listaAtual.some(negociacaoExistente => //Resultado do some é um boolean que caso seja verdadeiro é pq o item já está na lista
+                            negociacao.equals(negociacaoExistente) //equals nao existe no JS, implementei na mao utilizando o JSON.stringigy
+                        ))
                 )
                 .catch(erro => {
                     console.log(erro);

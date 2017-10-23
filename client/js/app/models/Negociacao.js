@@ -22,4 +22,8 @@ class Negociacao {
     get quantidade(){
         return this._quantidade;
     }
+
+    equals(objNegociacao){
+        return JSON.stringify(this) == JSON.stringify(objNegociacao);
+    }
 }
