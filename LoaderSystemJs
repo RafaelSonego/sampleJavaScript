@@ -1,0 +1,29 @@
+Utilizando o SystemJs
+- systemjs é uma biblioteca de loader para cuidar dos modulos js
+- modulos mean quando agora nao temos mais js de escopo global, definimos export e importamos nossas dependencias
+
+1 - Pelo terminal, ir até o caminho onde estao os htmls, js etc;
+2 - No terminal, utilizar o comando para o node fazer o download e instalar: npm install systemjs@0.19.31 --save (save significa que fará parte do projeto, nao somente em ambiente de dev)
+3 - Na pagina principal do html, importar o js <script src="node_modules/systemjs/dist/system.js"></script>
+4 - Precisa agora configurar para o load carregar o primeiro js que conterá as informacoes do que será importado etc
+5 - <script>
+        System.defaultJSExtensions = true; //permite omitir a extensao .js dos imports
+        System.import('js/app/boot').catch(function(err){ //Primeiro js que será carregado que conterá as informaçoes de importacao
+            console.log(err);
+        });
+    </script>
+6 - Feito isso, pode ser removido as dependencias de js
+7 - Pode remover a criacao do controller que a pagina está utilizando, tudo isso será utilizado no build
+8 - Instalar o plugin do babel e systemjs
+9 - npm install babel-plugin-transform-es2015-modules-systemjs@6.9.0 --save-dev
+10- Adicionar no arquivo .babelrc o plugin
+	{
+	   "presets" : ["es2015"],
+	   "plugins" : ["transform-es2015-modules-systemjs"]
+	}
+11- Precisa criar o js boot dentro do pasta original do js
+12- Nele fazer as importaçoes que antes o index.html estava utilizando 
+
+
+
+
