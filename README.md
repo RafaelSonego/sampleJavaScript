@@ -20,4 +20,4 @@ instalaçao por projeto:
 13- "build": "babel js/app-es6 - d js/app --source-maps" (Com isso, cada arquivo js gerado tem mapeado o arquivo original)
 14- Para que nao precise ficar rodando o build em cada alteraçao do js, existe um observador do babel que irá automaticamente gerar uma nova traduçao no arquivo que esta sendo alterado
 15- "watch": "babel js/app-es6 - d js/app --source-maps --watch"
-16- para executar, precisa no terminar executar npm run watch
+16- para executar, precisa no terminar executar npm run watch 
