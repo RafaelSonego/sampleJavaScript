@@ -1,4 +1,4 @@
-class DateHelper {
+export class DateHelper {
 
     constructor() {
         throw new Error('Esta classe nao pode ser instanciada - Metodos estaticos');

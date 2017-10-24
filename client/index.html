@@ -5,7 +5,6 @@
     <title>Negociações</title>
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/bootstrap-theme.css">
-    
 </head>
 <body class="container">
     
@@ -13,7 +12,7 @@
     
     <div id="divMensagemAlerta"></div>
 
-    <form class="form" onsubmit="negociacaoController.adiciona(event)">
+    <form class="form">
         
         <div class="form-group">
             <label for="data">Data</label>
@@ -34,32 +33,19 @@
     </form>
     
     <div class="text-center">
-        <button onclick="negociacaoController.apagaListaNegociacoes()" class="btn btn-primary text-center" type="button">
+        <button class="btn btn-primary text-center" type="button">
             Apagar
         </button>
     </div> 
     <br>
     <br>
     <div id="divTableNegociacoesView"></div>
-    
-    <script src="js/app/pollyfill/fetch.js"></script>
-    <script src="js/app/models/Negociacao.js"></script>
-    <script src="js/app/controllers/NegociacaoController.js"></script>
-    <script src="js/app/helpers/DateHelper.js"></script>
-    <script src="js/app/models/ListaNegociacoes.js"></script>
-    <script src="js/app/views/View.js"></script>
-    <script src="js/app/views/NegociacoesView.js"></script>
-    <script src="js/app/models/Mensagem.js"></script>
-    <script src="js/app/views/MensagemView.js"></script>
-    <script src="js/app/services/ProxyFactory.js"></script>
-    <script src="js/app/helpers/Bind.js"></script>
-    <script src="js/app/services/NegociacaoService.js"></script>
-    <script src="js/app/services/HTTPService.js"></script>
-    <script src="js/app/services/ConnectionFactory.js"></script>
-    <script src="js/app/dao/NegociacaoDao.js"></script>
-    
+    <script src="node_modules/systemjs/dist/system.js"></script><!--Loader para carregar os modulos -->
     <script>
-        var negociacaoController = new NegociacaoController();
-    </script>   
+        System.defaultJSExtensions = true; //permite omitir a extensao .js dos imports
+        System.import('js/app/boot').catch(function(err){ //Primeiro js que será carregado que conterá as informaçoes de importacao
+            console.error(err);
+        });
+    </script>
 </body>
 </html>

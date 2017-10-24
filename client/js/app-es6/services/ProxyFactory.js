@@ -8,7 +8,7 @@
             return Reflect.get(target, prop, receiver); 
     }
 */
-class ProxyFactory{
+export class ProxyFactory{
     /*
         Obj = Objeto que será criado a proxy
         props = array de propriedades
