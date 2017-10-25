@@ -61,10 +61,10 @@ System.register(['./View'], function (_export, _context) {
             _export('MensagemView', MensagemView = function (_View) {
                 _inherits(MensagemView, _View);
 
-                function MensagemView() {
+                function MensagemView(element) {
                     _classCallCheck(this, MensagemView);
 
-                    return _possibleConstructorReturn(this, (MensagemView.__proto__ || Object.getPrototypeOf(MensagemView)).apply(this, arguments));
+                    return _possibleConstructorReturn(this, (MensagemView.__proto__ || Object.getPrototypeOf(MensagemView)).call(this, element));
                 }
 
                 _createClass(MensagemView, [{
